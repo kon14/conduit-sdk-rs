@@ -1,0 +1,12 @@
+# Build & Proto Files
+/target
+/protos/conduit
+/proto_gen/*
+
+# Env Files
+**/.env
+
+# IDE Files
+/.idea
+/.vscode
+
