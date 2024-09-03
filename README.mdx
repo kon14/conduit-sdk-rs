@@ -96,6 +96,33 @@ RwLock {
 }
 ```
 
+## Networking 🕸️
+
+If you're running the above example while connecting to a containerized Conduit environment,
+such as the ones provided by Conduit's CLI, you might have noticed your modules' gRPC addresses
+looking an awful lot like hostnames (eg: `grpc://conduit-database:55160`).
+
+Your guess would be correct. We provide the SDK with Conduit Core's hostname and port combo,
+as exposed on the host computer, but the reality is, our microservices are still communicating inside a container network,
+as such, they internally refer to each other via their corresponding hostnames.
+
+Your services might alternatively be running somewhere on the cloud,
+communicating via internal ip/port pairs that may, or may not, be publicly exposed to the public internet exactly as is.
+
+However, if your own code isn't executing inside that very same environment,
+and you haven't otherwise explicitly configured any of your own system-level mappings
+for the module addresses advertised by Conduit's service discovery,
+your gRPC clients are unlikely to be able to reach any services behind these unexposed aliases.
+
+Hence, this SDK provides a mechanism for remapping any module addresses reported
+by Core with explicitly defined static overrides.
+
+You may specify your mappings by setting the `MODULE_URL_REMAP` env to a stringified JSON object.<br />
+Use module names (as represented by service discovery) for the keys
+and the publicly exposed gRPC addresses (eg `0.0.0.0:55160`) for the values.
+
+`MODULE_URL_REMAP='{"database":"0.0.0.0:55160","router":"0.0.0.0:55161","authentication":"0.0.0.0:55162","chat":"0.0.0.0:55163","email":"0.0.0.0:55164","forms":"0.0.0.0:55165","pushNotifications":"0.0.0.0:55166","sms":"0.0.0.0:55167","storage":"0.0.0.0:55168","authorization":"0.0.0.0:55169"}'`
+
 ## Roadmap 🏁
 
 - gRPC Client Wrappers for Official Conduit Services
