@@ -2,11 +2,12 @@ use super::module_name::ModuleName;
 use crate::addr::GrpcAddress;
 use crate::clients::conduit::config::WatchModulesStream;
 use chrono::{DateTime, Utc};
-use futures::Stream;
+use futures::{Stream, StreamExt};
 use log::error;
 use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 use std::task::Context;
+use tokio::sync::RwLock;
 
 /// A representation of a module's remotely tracked distributed service discovery state.
 #[derive(Clone, Eq, PartialEq)]
@@ -25,23 +26,16 @@ pub struct ServiceDiscoveryState {
 
 pub fn sync_sd_state(sd_state: Arc<RwLock<ServiceDiscoveryState>>, stream: WatchModulesStream) {
     tokio::spawn(async move {
-        let mut cx = Context::from_waker(futures::task::noop_waker_ref());
-        let mut pinned = std::pin::pin!(stream);
-        loop {
-            match pinned.as_mut().poll_next(&mut cx) {
-                std::task::Poll::Ready(Some(state)) => {
-                    match state {
-                        Ok(state) => {
-                            let mut writable = sd_state.write().unwrap();
-                            *writable = state;
-                        }
-                        Err(err) => {
-                            error!("{err}");
-                        }
-                    };
+        let mut stream = stream;
+        while let Some(result) = stream.next().await {
+            match result {
+                Ok(state) => {
+                    let mut writable = sd_state.write().await;
+                    *writable = state;
                 }
-                std::task::Poll::Ready(None) => break,
-                _ => {}
+                Err(err) => {
+                    error!("{err}");
+                }
             }
         }
     });

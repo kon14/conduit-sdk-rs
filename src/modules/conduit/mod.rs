@@ -2,6 +2,10 @@ use crate::addr::GrpcAddress;
 use crate::clients::{
     conduit::admin::AdminClient, conduit::config::ConfigClient, health::HealthClient,
 };
+use crate::error::ConduitSdkError;
+use crate::sd::{sync_sd_state, ServiceDiscoveryState};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 use tonic::transport::Channel;
 
 pub struct Conduit {
@@ -22,6 +26,16 @@ impl Conduit {
             admin_client,
             health_client,
         }
+    }
+
+    pub async fn monitor_modules(
+        &self,
+    ) -> Result<Arc<RwLock<ServiceDiscoveryState>>, ConduitSdkError> {
+        let initial_state = self.config_client.list_modules().await?;
+        let sd_state = Arc::new(RwLock::new(initial_state));
+        let stream = self.config_client.watch_modules().await?;
+        sync_sd_state(sd_state.clone(), stream);
+        Ok(sd_state)
     }
 }
 

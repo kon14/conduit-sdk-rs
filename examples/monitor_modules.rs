@@ -1,6 +1,6 @@
 use chrono::Utc;
 use conduit_sdk_rs::addr::GrpcAddress;
-use conduit_sdk_rs::{connect, watch_modules};
+use conduit_sdk_rs::connect;
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let conduit = connect(grpc_address, Some(10), None).await.unwrap();
 
-    let sd_state = watch_modules(&conduit).await?;
+    let sd_state = conduit.monitor_modules().await?;
 
     loop {
         println!("\nService Discovery State @ {}", Utc::now());

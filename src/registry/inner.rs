@@ -187,7 +187,7 @@ impl Default for InnerModuleRegistry {
 impl fmt::Debug for InnerModuleRegistry {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if f.alternate() {
-            write!(f, "InnerModuleRegistry {{\n")?;
+            write!(f, "ModuleRegistry {{\n")?;
             write!(f, "    connected_modules: [\n")?;
             for module in self.connected_modules.values().into_iter() {
                 write!(f, "        {:?},\n", module)?;
@@ -199,7 +199,7 @@ impl fmt::Debug for InnerModuleRegistry {
             let module = self.connected_modules.values().collect::<Vec<_>>(); // Collect keys for concise output
             write!(
                 f,
-                "InnerModuleRegistry {{ connected_modules: {:?}, last_updated: {:?} }}",
+                "ModuleRegistry {{ connected_modules: {:?}, last_updated: {:?} }}",
                 module, self.last_updated
             )
         }

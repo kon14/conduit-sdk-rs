@@ -47,10 +47,10 @@ For additional information on Conduit environment bootstrapping options, check o
 The following example demonstrates distributed service discovery synchronization.<br />
 
 ``` bash
-CONDUIT_SERVER_URL="0.0.0.0:55152" cargo run --example watch_modules
+CONDUIT_SERVER_URL="0.0.0.0:55152" cargo run --example monitor_modules
 ```
 
-The example's code establishes a connection to Conduit and calls `watch_modules()`, retrieving an initialized `Arc<RwLock<ServiceDiscoveryState>>`.
+The example's code establishes a connection to Conduit and calls `Conduit::monitor_modules()`, retrieving an initialized `Arc<RwLock<ServiceDiscoveryState>>`.
 
 Every 500ms, the local state gets logged, while a background task takes care of keeping it in sync with the remote service discovery state.
 
@@ -59,44 +59,40 @@ _Output_
 Waiting for Conduit...
 Conduit connection established!
 
-Service Discovery State @ 2024-09-02 22:37:28.302090333 UTC
+Service Discovery State @ 2024-09-03 18:45:51.225161057 UTC
 RwLock {
     data: ServiceDiscoveryState {
         module_states: {
-            Chat: { grpc_address: grpc://conduit-chat:55163, is_serving: true },
-            Database: { grpc_address: grpc://conduit-database:55160, is_serving: true },
-            Unknown("pushNotifications"): { grpc_address: grpc://conduit-push-notifications:55166, is_serving: false },
-            Email: { grpc_address: grpc://conduit-email:55164, is_serving: false },
-            Forms: { grpc_address: grpc://conduit-forms:55165, is_serving: false },
-            Router: { grpc_address: grpc://conduit-router:55161, is_serving: true },
-            Authentication: { grpc_address: grpc://conduit-authentication:55162, is_serving: true },
-            Storage: { grpc_address: grpc://conduit-storage:55168, is_serving: false },
+            Database: { grpc_address: grpc://0.0.0.0:55160, is_serving: true },
+            Router: { grpc_address: grpc://0.0.0.0:55161, is_serving: true },
+            PushNotifications: { grpc_address: grpc://0.0.0.0:55166, is_serving: false },
+            Forms: { grpc_address: grpc://0.0.0.0:55165, is_serving: false },
+            Authentication: { grpc_address: grpc://0.0.0.0:55162, is_serving: true },
+            Storage: { grpc_address: grpc://0.0.0.0:55168, is_serving: false },
+            Chat: { grpc_address: grpc://0.0.0.0:55163, is_serving: true },
+            Email: { grpc_address: grpc://0.0.0.0:55164, is_serving: false },
         },
-        last_updated: 2024-09-02T22:37:24.094379176Z
+        last_updated: 2024-09-03T18:45:46.375426812Z
     }
     ,
-    poisoned: false,
-    ..
 }
 
-Service Discovery State @ 2024-09-02 22:37:28.803936830 UTC
+Service Discovery State @ 2024-09-03 18:45:51.727156553 UTC
 RwLock {
     data: ServiceDiscoveryState {
         module_states: {
-            Email: { grpc_address: grpc://conduit-email:55164, is_serving: false },
-            Authentication: { grpc_address: grpc://conduit-authentication:55162, is_serving: true },
-            Chat: { grpc_address: grpc://conduit-chat:55163, is_serving: true },
-            Unknown("pushNotifications"): { grpc_address: grpc://conduit-push-notifications:55166, is_serving: false },
-            Database: { grpc_address: grpc://conduit-database:55160, is_serving: true },
-            Forms: { grpc_address: grpc://conduit-forms:55165, is_serving: false },
-            Router: { grpc_address: grpc://conduit-router:55161, is_serving: true },
-            Storage: { grpc_address: grpc://conduit-storage:55168, is_serving: false },
+            Authentication: { grpc_address: grpc://0.0.0.0:55162, is_serving: true },
+            Email: { grpc_address: grpc://0.0.0.0:55164, is_serving: false },
+            Storage: { grpc_address: grpc://0.0.0.0:55168, is_serving: false },
+            Router: { grpc_address: grpc://0.0.0.0:55161, is_serving: true },
+            Forms: { grpc_address: grpc://0.0.0.0:55165, is_serving: false },
+            Database: { grpc_address: grpc://0.0.0.0:55160, is_serving: true },
+            Chat: { grpc_address: grpc://0.0.0.0:55163, is_serving: true },
+            PushNotifications: { grpc_address: grpc://0.0.0.0:55166, is_serving: false },
         },
-        last_updated: 2024-09-02T22:37:28.302313177Z
+        last_updated: 2024-09-03T18:45:51.376619449Z
     }
     ,
-    poisoned: false,
-    ..
 }
 ```
 

@@ -10,8 +10,6 @@ use crate::addr::GrpcAddress;
 use crate::clients::health::{HealthClient, ServingStatus};
 use crate::error::ConduitSdkError;
 use crate::modules::conduit::Conduit;
-use crate::sd::{sync_sd_state, ServiceDiscoveryState};
-use std::sync::{Arc, RwLock};
 use std::time::Duration;
 use tonic::transport::Channel;
 
@@ -79,14 +77,4 @@ pub async fn connect(
     };
     println!("Conduit connection established!");
     Ok(Conduit::new(core_address, channel))
-}
-
-pub async fn watch_modules(
-    conduit: &Conduit,
-) -> Result<Arc<RwLock<ServiceDiscoveryState>>, ConduitSdkError> {
-    let initial_state = conduit.config_client.list_modules().await?;
-    let sd_state = Arc::new(RwLock::new(initial_state));
-    let stream = conduit.config_client.watch_modules().await?;
-    sync_sd_state(sd_state.clone(), stream);
-    Ok(sd_state)
 }
