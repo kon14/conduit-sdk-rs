@@ -72,7 +72,7 @@ impl std::str::FromStr for ModuleName {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
+        match s {
             "authentication" => Ok(ModuleName::Authentication),
             "authorization" => Ok(ModuleName::Authorization),
             "chat" => Ok(ModuleName::Chat),
