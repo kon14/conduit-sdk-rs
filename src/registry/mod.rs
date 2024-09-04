@@ -8,7 +8,7 @@ use crate::modules::Module;
 use crate::sd::ModuleName;
 use std::fmt;
 use std::sync::Arc;
-use tokio::{runtime::Handle, sync::RwLock};
+use tokio::sync::RwLock;
 
 /// A locally tracked registry of connected modules.
 #[derive(Default)]

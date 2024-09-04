@@ -2,11 +2,10 @@ use super::module_name::ModuleName;
 use crate::addr::GrpcAddress;
 use crate::clients::conduit::config::WatchModulesStream;
 use chrono::{DateTime, Utc};
-use futures::{Stream, StreamExt};
+use futures::StreamExt;
 use log::error;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::task::Context;
 use tokio::sync::RwLock;
 
 /// A representation of a module's remotely tracked distributed service discovery state.
