@@ -17,3 +17,7 @@ impl std::fmt::Debug for RouterModule {
         write!(f, "Router @ {:?}", self.grpc_address)
     }
 }
+
+mod security_client;
+
+pub use security_client::*;

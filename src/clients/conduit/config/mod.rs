@@ -17,5 +17,4 @@ impl ConfigClient {
 mod list_modules;
 mod watch_modules;
 
-pub use list_modules::*;
-pub use watch_modules::*;
+pub use watch_modules::WatchModulesStream;

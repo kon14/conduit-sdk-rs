@@ -45,7 +45,6 @@ impl TryFrom<proto::HealthCheckResponse> for HealthCheckResponse {
 mod check;
 mod watch;
 
-pub use check::*;
-pub use watch::*;
+pub use watch::HealthWatchStream;
 
 pub use proto::health_check_response::ServingStatus;
