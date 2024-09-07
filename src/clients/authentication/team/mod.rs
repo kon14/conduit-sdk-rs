@@ -5,14 +5,7 @@ mod get_team;
 mod remove_team_members;
 
 use super::proto;
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct Team {
-    pub id: String,
-    pub name: String,
-    pub parent_team_id: Option<String>,
-    pub is_default: bool,
-}
+use crate::modules::authentication::Team;
 
 impl From<proto::Team> for Team {
     fn from(grpc_res: proto::Team) -> Self {

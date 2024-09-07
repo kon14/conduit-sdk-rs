@@ -34,5 +34,7 @@ impl std::fmt::Debug for AuthenticationModule {
 }
 
 mod path;
+mod team;
 
-pub use path::*;
+pub use path::AuthenticationPath;
+pub use team::Team;
