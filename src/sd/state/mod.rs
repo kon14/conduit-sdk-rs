@@ -6,7 +6,7 @@ use futures::StreamExt;
 use log::error;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{watch, RwLock};
 
 /// A representation of a module's remotely tracked distributed service discovery state.
 #[derive(Clone, Eq, PartialEq)]
@@ -23,21 +23,28 @@ pub struct ServiceDiscoveryState {
     pub last_updated: DateTime<Utc>,
 }
 
-pub fn sync_sd_state(sd_state: Arc<RwLock<ServiceDiscoveryState>>, stream: WatchModulesStream) {
-    tokio::spawn(async move {
-        let mut stream = stream;
-        while let Some(result) = stream.next().await {
-            match result {
-                Ok(state) => {
-                    let mut writable = sd_state.write().await;
-                    *writable = state;
-                }
-                Err(err) => {
-                    error!("{err}");
+impl ServiceDiscoveryState {
+    pub(crate) fn sync_from_stream(
+        sd_state: Arc<RwLock<ServiceDiscoveryState>>,
+        stream: WatchModulesStream,
+        tx: watch::Sender<ServiceDiscoveryState>,
+    ) {
+        tokio::spawn(async move {
+            let mut stream = stream;
+            while let Some(result) = stream.next().await {
+                match result {
+                    Ok(state) => {
+                        let mut writable = sd_state.write().await;
+                        *writable = state.clone();
+                        let _ = tx.send(state);
+                    }
+                    Err(err) => {
+                        error!("{err}");
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 }
 
 impl std::fmt::Debug for ServiceDiscoveryModuleState {
@@ -69,7 +76,7 @@ impl std::fmt::Debug for ServiceDiscoveryState {
             }
             writeln!(f, "    }},")?;
             writeln!(f, "    last_updated: {:?}", self.last_updated)?;
-            writeln!(f, "}}")
+            write!(f, "}}")
         } else {
             write!(
                 f,

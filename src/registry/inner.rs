@@ -1,11 +1,11 @@
+use crate::error::ConduitSdkError;
+use crate::modules::Module;
+use crate::prelude::ModuleRegistryError;
+use crate::sd::ModuleName;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use std::fmt;
 use std::sync::Arc;
-
-use crate::modules::Module;
-use crate::prelude::ModuleRegistryError;
-use crate::sd::ModuleName;
 
 pub(crate) struct InnerModuleRegistry {
     connected_modules: HashMap<ModuleName, Module>,
@@ -24,6 +24,25 @@ impl InnerModuleRegistry {
         self.connected_modules.insert(name, module);
         self.last_updated = Utc::now();
         Ok(())
+    }
+
+    pub async fn add_module_if_not_exists<F, Fut>(
+        &mut self,
+        name: &ModuleName,
+        get_module: F,
+    ) -> Result<bool, ConduitSdkError>
+    where
+        F: FnOnce() -> Fut,
+        Fut: std::future::Future<Output = Result<Module, ConduitSdkError>>,
+    {
+        if self.is_registered(name) {
+            Ok(true)
+        } else {
+            let module = get_module().await?;
+            self.connected_modules.insert(name.clone(), module);
+            self.last_updated = Utc::now();
+            Ok(false)
+        }
     }
 
     pub fn remove_module(&mut self, name: ModuleName) -> Result<Module, ModuleRegistryError> {

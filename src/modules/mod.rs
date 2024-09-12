@@ -11,7 +11,10 @@ pub mod sms;
 pub mod storage;
 pub mod unknown;
 
+use crate::addr::GrpcAddress;
+use crate::sd::ModuleName;
 use std::sync::Arc;
+use tonic::transport::Channel;
 
 #[derive(Clone)]
 pub enum Module {
@@ -26,6 +29,49 @@ pub enum Module {
     SMS(Arc<sms::SmsModule>),
     Storage(Arc<storage::StorageModule>),
     Unknown(Arc<unknown::UnknownModule>),
+}
+
+impl Module {
+    pub(crate) fn new(
+        module_name: ModuleName,
+        grpc_address: GrpcAddress,
+        channel: Channel,
+    ) -> Self {
+        match module_name {
+            ModuleName::Authentication => Module::Authentication(Arc::new(
+                authentication::AuthenticationModule::new(grpc_address, channel),
+            )),
+            ModuleName::Authorization => Module::Authorization(Arc::new(
+                authorization::AuthorizationModule::new(grpc_address, channel),
+            )),
+            ModuleName::Chat => {
+                Module::Chat(Arc::new(chat::ChatModule::new(grpc_address, channel)))
+            }
+            ModuleName::Database => Module::Database(Arc::new(database::DatabaseModule::new(
+                grpc_address,
+                channel,
+            ))),
+            ModuleName::Email => {
+                Module::Email(Arc::new(email::EmailModule::new(grpc_address, channel)))
+            }
+            ModuleName::Forms => {
+                Module::Forms(Arc::new(forms::FormsModule::new(grpc_address, channel)))
+            }
+            ModuleName::PushNotifications => Module::PushNotifications(Arc::new(
+                push_notifications::PushNotificationsModule::new(grpc_address, channel),
+            )),
+            ModuleName::Router => {
+                Module::Router(Arc::new(router::RouterModule::new(grpc_address, channel)))
+            }
+            ModuleName::SMS => Module::SMS(Arc::new(sms::SmsModule::new(grpc_address, channel))),
+            ModuleName::Storage => {
+                Module::Storage(Arc::new(storage::StorageModule::new(grpc_address, channel)))
+            }
+            ModuleName::Unknown(module_name) => Module::Unknown(Arc::new(
+                unknown::UnknownModule::new(module_name, grpc_address, channel),
+            )),
+        }
+    }
 }
 
 impl std::fmt::Debug for Module {

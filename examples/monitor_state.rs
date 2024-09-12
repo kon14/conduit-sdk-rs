@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let conduit = connect(grpc_address, Some(10), None).await.unwrap();
 
-    let sd_state = conduit.monitor_modules().await?;
+    let (sd_state, _) = conduit.monitor_state().await?;
 
     loop {
         println!("\nService Discovery State @ {}", Utc::now());

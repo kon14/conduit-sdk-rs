@@ -13,6 +13,20 @@ pub struct DatabaseModule {
     pub health_client: HealthClient,
 }
 
+impl DatabaseModule {
+    pub fn new(grpc_address: GrpcAddress, channel: Channel) -> Self {
+        let module_client = ConduitModuleClient::new(channel.clone());
+        let service_client = DatabaseClient::new(channel.clone());
+        let health_client = HealthClient::new(channel);
+        DatabaseModule {
+            grpc_address,
+            _module_client: module_client,
+            _service_client: service_client,
+            health_client,
+        }
+    }
+}
+
 impl std::fmt::Debug for DatabaseModule {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Database @ {:?}", self.grpc_address)

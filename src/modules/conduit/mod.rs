@@ -3,9 +3,9 @@ use crate::clients::{
     conduit::admin::AdminClient, conduit::config::ConfigClient, health::HealthClient,
 };
 use crate::error::ConduitSdkError;
-use crate::sd::{sync_sd_state, ServiceDiscoveryState};
+use crate::sd::ServiceDiscoveryState;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{watch, RwLock};
 use tonic::transport::Channel;
 
 pub struct Conduit {
@@ -28,14 +28,23 @@ impl Conduit {
         }
     }
 
-    pub async fn monitor_modules(
+    /// Keeps track of the latest service discovery state.<br />
+    /// Returns a background-synchronized `ServiceDiscoveryState` and a channel of `ServiceDiscoveryState` updates.
+    pub async fn monitor_state(
         &self,
-    ) -> Result<Arc<RwLock<ServiceDiscoveryState>>, ConduitSdkError> {
+    ) -> Result<
+        (
+            Arc<RwLock<ServiceDiscoveryState>>,
+            watch::Receiver<ServiceDiscoveryState>,
+        ),
+        ConduitSdkError,
+    > {
         let initial_state = self.config_client.list_modules().await?;
+        let (tx, rx) = watch::channel(initial_state.clone());
         let sd_state = Arc::new(RwLock::new(initial_state));
         let stream = self.config_client.watch_modules().await?;
-        sync_sd_state(sd_state.clone(), stream);
-        Ok(sd_state)
+        ServiceDiscoveryState::sync_from_stream(sd_state.clone(), stream, tx);
+        Ok((sd_state, rx))
     }
 }
 

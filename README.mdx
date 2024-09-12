@@ -47,10 +47,10 @@ For additional information on Conduit environment bootstrapping options, check o
 The following example demonstrates distributed service discovery synchronization.<br />
 
 ``` bash
-CONDUIT_SERVER_URL="0.0.0.0:55152" cargo run --example monitor_modules
+CONDUIT_SERVER_URL="0.0.0.0:55152" cargo run --example monitor_state
 ```
 
-The example's code establishes a connection to Conduit and calls `Conduit::monitor_modules()`, retrieving an initialized `Arc<RwLock<ServiceDiscoveryState>>`.
+The example's code establishes a connection to Conduit and calls `Conduit::monitor_state()`, retrieving an initialized `Arc<RwLock<ServiceDiscoveryState>>`.
 
 Every 500ms, the local state gets logged, while a background task takes care of keeping it in sync with the remote service discovery state.
 
